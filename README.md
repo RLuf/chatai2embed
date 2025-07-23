@@ -1,3 +1,11 @@
+# Install
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+
+Roda o .html
+
+
 # chatai2embed
 Script para preservar chats exportados em base vetorial qdrant
 
