@@ -1,0 +1,9 @@
+qdrant-client
+pydantic
+typing-extensions
+jsonschema
+requests
+tqdm
+json
+hashlib
+typing

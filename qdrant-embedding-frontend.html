@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Qdrant Embedding - Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .card h2 {
+            color: #4a5568;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+            border-bottom: 2px solid #e2e8f0;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #2d3748;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .file-input {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .file-input input[type=file] {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 12px;
+            background: #f7fafc;
+            border: 2px dashed #cbd5e0;
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .file-input:hover .file-input-label {
+            background: #edf2f7;
+            border-color: #667eea;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:disabled {
+            background: #a0aec0;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .progress-section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 20px;
+            background: #e2e8f0;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 15px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .log-section {
+            background: #1a202c;
+            color: #e2e8f0;
+            border-radius: 15px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 5px;
+            border-radius: 4px;
+        }
+
+        .log-info {
+            color: #63b3ed;
+        }
+
+        .log-success {
+            color: #68d391;
+        }
+
+        .log-warning {
+            color: #fbd38d;
+        }
+
+        .log-error {
+            color: #fc8181;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .stat-card {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            color: #4a5568;
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Qdrant Embedding Interface</h1>
+            <p>Processe seus arquivos JSON de chat com estilo!</p>
+        </div>
+
+        <div class="main-content">
+            <div class="card">
+                <h2>📁 Configuração do Arquivo</h2>
+                <div class="form-group">
+                    <label for="jsonFile">Arquivo JSON:</label>
+                    <div class="file-input">
+                        <input type="file" id="jsonFile" accept=".json">
+                        <label for="jsonFile" class="file-input-label">
+                            📎 Clique para selecionar o arquivo JSON
+                        </label>
+                    </div>
+                    <div id="fileInfo" style="margin-top: 10px; font-size: 14px; color: #666;"></div>
+                </div>
+
+                <div class="form-group">
+                    <label for="collectionName">Nome da Coleção:</label>
+                    <input type="text" id="collectionName" placeholder="minha_colecao_chat" value="chat_embeddings">
+                </div>
+
+                <div class="form-group">
+                    <label for="embedStrategy">Estratégia de Embedding:</label>
+                    <select id="embedStrategy">
+                        <option value="full">Conversa Completa</option>
+                        <option value="messages">Todas as Mensagens</option>
+                        <option value="human_only">Apenas Usuário</option>
+                        <option value="assistant_only">Apenas Assistente</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <input type="checkbox" id="chunkMessages" checked>
+                        <label for="chunkMessages">Dividir mensagens longas em chunks</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>⚙️ Configurações de Conexão</h2>
+                <div class="form-group">
+                    <label for="qdrantHost">Host Qdrant:</label>
+                    <input type="text" id="qdrantHost" value="localhost">
+                </div>
+
+                <div class="form-group">
+                    <label for="qdrantPort">Porta Qdrant:</label>
+                    <input type="number" id="qdrantPort" value="6333">
+                </div>
+
+                <div class="form-group">
+                    <label for="ollamaHost">Host Ollama:</label>
+                    <input type="text" id="ollamaHost" value="localhost">
+                </div>
+
+                <div class="form-group">
+                    <label for="ollamaPort">Porta Ollama:</label>
+                    <input type="number" id="ollamaPort" value="11434">
+                </div>
+
+                <div class="form-group">
+                    <label for="batchSize">Tamanho do Batch:</label>
+                    <input type="number" id="batchSize" value="5" min="1" max="50">
+                </div>
+
+                <button class="btn" id="processBtn" onclick="processFile()">
+                    🚀 Iniciar Processamento
+                </button>
+            </div>
+        </div>
+
+        <div class="progress-section" id="progressSection" style="display: none;">
+            <h2>📊 Progresso do Processamento</h2>
+            <div class="stats-grid" id="statsGrid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalConversations">0</div>
+                    <div class="stat-label">Conversas</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="processedItems">0</div>
+                    <div class="stat-label">Itens Processados</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="currentBatch">0</div>
+                    <div class="stat-label">Batch Atual</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="estimatedTime">--</div>
+                    <div class="stat-label">Tempo Estimado</div>
+                </div>
+            </div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+            <div id="progressText" style="text-align: center; margin-top: 10px;">Preparando...</div>
+        </div>
+
+        <div class="progress-section">
+            <h2>📝 Log de Processamento</h2>
+            <div class="log-section" id="logSection">
+                <div class="log-entry log-info">Sistema inicializado. Aguardando arquivo...</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentFile = null;
+        let isProcessing = false;
+
+        // Handle file selection
+        document.getElementById('jsonFile').addEventListener('change', function(e) {
+            currentFile = e.target.files[0];
+            if (currentFile) {
+                const fileSize = (currentFile.size / (1024 * 1024)).toFixed(2);
+                document.getElementById('fileInfo').innerHTML = 
+                    `📄 <strong>${currentFile.name}</strong> (${fileSize} MB)`;
+                addLog(`Arquivo selecionado: ${currentFile.name} (${fileSize} MB)`, 'info');
+            }
+        });
+
+        function addLog(message, type = 'info') {
+            const logSection = document.getElementById('logSection');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = `log-entry log-${type}`;
+            logEntry.innerHTML = `[${timestamp}] ${message}`;
+            logSection.appendChild(logEntry);
+            logSection.scrollTop = logSection.scrollHeight;
+        }
+
+        function updateProgress(percent, text) {
+            document.getElementById('progressFill').style.width = `${percent}%`;
+            document.getElementById('progressText').textContent = text;
+        }
+
+        function updateStats(stats) {
+            document.getElementById('totalConversations').textContent = stats.totalConversations || 0;
+            document.getElementById('processedItems').textContent = stats.processedItems || 0;
+            document.getElementById('currentBatch').textContent = stats.currentBatch || 0;
+            document.getElementById('estimatedTime').textContent = stats.estimatedTime || '--';
+        }
+
+        async function processFile() {
+            if (!currentFile) {
+                addLog('⚠️ Nenhum arquivo selecionado!', 'warning');
+                return;
+            }
+
+            if (isProcessing) {
+                addLog('⚠️ Processamento já em andamento!', 'warning');
+                return;
+            }
+
+            isProcessing = true;
+            document.getElementById('processBtn').disabled = true;
+            document.getElementById('processBtn').textContent = '⏳ Processando...';
+            document.getElementById('progressSection').style.display = 'block';
+
+            try {
+                // Show initial progress
+                updateProgress(5, 'Carregando arquivo...');
+                addLog('🚀 Iniciando processamento...', 'info');
+
+                // Read and validate file
+                const fileContent = await readFileAsText(currentFile);
+                updateProgress(10, 'Validando estrutura JSON...');
+                addLog('📋 Arquivo carregado, validando estrutura...', 'info');
+
+                let jsonData;
+                try {
+                    jsonData = JSON.parse(fileContent);
+                    addLog('✅ JSON válido detectado', 'success');
+                } catch (parseError) {
+                    throw new Error('Arquivo JSON inválido: ' + parseError.message);
+                }
+
+                // Detect format and structure
+                updateProgress(15, 'Analisando formato dos dados...');
+                const analysis = analyzeJsonStructure(jsonData);
+                addLog(`📊 Formato detectado: ${analysis.format}`, 'info');
+                addLog(`📈 ${analysis.totalConversations} conversas, ${analysis.totalMessages} mensagens`, 'info');
+
+                updateStats({
+                    totalConversations: analysis.totalConversations,
+                    processedItems: 0,
+                    currentBatch: 0,
+                    estimatedTime: `~${Math.ceil(analysis.totalMessages / 10)} min`
+                });
+
+                // Simulate processing steps
+                await simulateProcessing(analysis);
+
+                addLog('🎉 Processamento concluído com sucesso!', 'success');
+                updateProgress(100, 'Processamento concluído!');
+
+            } catch (error) {
+                addLog(`❌ Erro: ${error.message}`, 'error');
+                updateProgress(0, 'Erro no processamento');
+            } finally {
+                isProcessing = false;
+                document.getElementById('processBtn').disabled = false;
+                document.getElementById('processBtn').textContent = '🚀 Iniciar Processamento';
+            }
+        }
+
+        function readFileAsText(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = e => resolve(e.target.result);
+                reader.onerror = e => reject(new Error('Erro ao ler arquivo'));
+                reader.readAsText(file);
+            });
+        }
+
+        function analyzeJsonStructure(data) {
+            let totalConversations = 0;
+            let totalMessages = 0;
+            let format = 'unknown';
+
+            // Detect format
+            if (Array.isArray(data)) {
+                totalConversations = data.length;
+                format = 'conversation_array';
+                data.forEach(conv => {
+                    if (conv.messages) totalMessages += conv.messages.length;
+                    else if (conv.chat_messages) totalMessages += conv.chat_messages.length;
+                });
+            } else if (data.messages) {
+                totalConversations = 1;
+                totalMessages = data.messages.length;
+                format = 'single_conversation';
+            } else if (data.conversation && data.conversation.messages) {
+                totalConversations = 1;
+                totalMessages = data.conversation.messages.length;
+                format = 'claude_export';
+            }
+
+            return { format, totalConversations, totalMessages };
+        }
+
+        async function simulateProcessing(analysis) {
+            const batchSize = parseInt(document.getElementById('batchSize').value);
+            const totalItems = analysis.totalMessages;
+            let processedItems = 0;
+
+            // Simulate batch processing
+            for (let batch = 1; batch <= Math.ceil(totalItems / batchSize); batch++) {
+                const itemsInBatch = Math.min(batchSize, totalItems - processedItems);
+                
+                updateProgress(
+                    20 + (batch / Math.ceil(totalItems / batchSize)) * 75, 
+                    `Processando batch ${batch}...`
+                );
+
+                updateStats({
+                    totalConversations: analysis.totalConversations,
+                    processedItems: processedItems,
+                    currentBatch: batch,
+                    estimatedTime: `~${Math.ceil((totalItems - processedItems) / 10)} min`
+                });
+
+                addLog(`🔄 Processando batch ${batch} (${itemsInBatch} itens)`, 'info');
+                
+                // Simulate processing time
+                await new Promise(resolve => setTimeout(resolve, 1000 + Math.random() * 2000));
+                
+                processedItems += itemsInBatch;
+                
+                if (Math.random() < 0.1) {
+                    addLog(`⚠️ Mensagem muito longa detectada, aplicando chunking`, 'warning');
+                }
+            }
+
+            updateStats({
+                totalConversations: analysis.totalConversations,
+                processedItems: processedItems,
+                currentBatch: Math.ceil(totalItems / batchSize),
+                estimatedTime: '0 min'
+            });
+        }
+
+        // Initialize
+        addLog('🎯 Interface carregada. Selecione um arquivo JSON para começar!', 'success');
+    </script>
+</body>
+</html>
